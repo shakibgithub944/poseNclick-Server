@@ -10,12 +10,12 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ofvswtt.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
     try {
         const serviceCollection = client.db("pose-n-click").collection("services");
+        const reviewCollection = client.db("pose-n-click").collection("reviews");
 
         app.get('/services', async (req, res) => {
             const query = {};
@@ -29,14 +29,47 @@ async function run() {
             const cursor = serviceCollection.find(query);
             const services = await cursor.toArray();
             res.send(services)
-
         })
+
         app.get('/all-services/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
-            const result =await serviceCollection.findOne(query);
+            const query = { _id: ObjectId(id) };
+            const result = await serviceCollection.findOne(query);
             // const services = await cursor.toArray();
             res.send(result)
+
+        })
+        // review api
+        
+        app.get('/all-reviews', async (req, res) => {
+            let query = {};
+            if (req.query.service) {
+                query = {
+                    service: req.query.service
+                }
+            }
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews)
+        });
+
+        app.get('/all-reviews/email', async (req, res) => {
+            console.log(req.query.email)
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    email: req.query.email
+                }
+            }
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews)
+        })
+
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review)
+            res.send(result);
 
         })
 
