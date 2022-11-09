@@ -80,7 +80,8 @@ async function run() {
             res.send(reviews)
         });
 
-        app.get('/all-reviews/email', verifyJwt, async (req, res) => {
+        app.get('/all-reviews/email',verifyJwt,  async (req, res) => {
+            
             let query = {};
             if (req.query.email) {
                 query = {
@@ -107,15 +108,15 @@ async function run() {
 
         })
 
-        // app.put('/reviews/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: ObjectId(id) };
-        //     const updatedReview =req.body
-        //     console.log(updatedReview)
-        //     // const result = await reviewCollection.findOne(query);
-        //     // res.send(result)
+        app.put('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const updatedReview =req.body
+            console.log(updatedReview)
+            // const result = await reviewCollection.findOne(query);
+            // res.send(result)
 
-        // })
+        })
 
         app.delete('/reviews/:id', async (req, res) => {
             const id = req.params.id;
