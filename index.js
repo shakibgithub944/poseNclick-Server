@@ -8,7 +8,6 @@ app.use(cors());
 app.use(express.json());
 
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ofvswtt.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -39,8 +38,14 @@ async function run() {
             res.send(result)
 
         })
+        app.post('/service', async (req, res) => {
+            const service = req.body;
+            const result = await serviceCollection.insertOne(service)
+            res.send(result);
+
+        })
         // review api
-        
+
         app.get('/all-reviews', async (req, res) => {
             let query = {};
             if (req.query.service) {
@@ -79,6 +84,16 @@ async function run() {
             res.send(result)
 
         })
+
+        // app.put('/reviews/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const updatedReview =req.body
+        //     console.log(updatedReview)
+        //     // const result = await reviewCollection.findOne(query);
+        //     // res.send(result)
+
+        // })
 
         app.delete('/reviews/:id', async (req, res) => {
             const id = req.params.id;
