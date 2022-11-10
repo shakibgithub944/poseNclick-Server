@@ -42,7 +42,7 @@ async function run() {
             const query = {};
             const cursor = serviceCollection.find(query);
             const services = await cursor.limit(3).toArray();
-            res.send(services.reverse())
+            res.send(services)
 
         })
         app.get('/all-services', async (req, res) => {
@@ -56,7 +56,6 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await serviceCollection.findOne(query);
-            // const services = await cursor.toArray();
             res.send(result)
 
         })
@@ -76,12 +75,17 @@ async function run() {
                 }
             }
             const cursor = reviewCollection.find(query);
-            const reviews = await cursor.toArray();
+            const reviews = (await cursor.toArray()).reverse();
             res.send(reviews)
         });
 
-        app.get('/all-reviews/email',verifyJwt,  async (req, res) => {
-            
+        app.get('/all-reviews/email', verifyJwt, async (req, res) => {
+            // verifyJwt,
+            const decoded = req.decoded;
+
+            if (decoded.email !== req.query.email) {
+                res.status(403).send({ message: 'unauthorized access' })
+            }
             let query = {};
             if (req.query.email) {
                 query = {
@@ -90,7 +94,7 @@ async function run() {
             }
             const cursor = reviewCollection.find(query);
             const reviews = await cursor.toArray();
-            res.send(reviews)
+            res.send(reviews.reverse())
         })
 
         app.post('/reviews', async (req, res) => {
@@ -110,11 +114,16 @@ async function run() {
 
         app.put('/reviews/:id', async (req, res) => {
             const id = req.params.id;
+            const updatedReview = req.body.message
             const query = { _id: ObjectId(id) };
-            const updatedReview =req.body
-            console.log(updatedReview)
-            // const result = await reviewCollection.findOne(query);
-            // res.send(result)
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    message: updatedReview,
+                }
+            }
+            const result = await reviewCollection.updateOne(query, updatedDoc, options);
+            res.send(result)
 
         })
 
